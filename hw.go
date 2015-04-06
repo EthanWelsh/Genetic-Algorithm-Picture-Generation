@@ -3,5 +3,8 @@ package main
 import "fmt"
 
 func main() {
-    fmt.Println("Hello World")
+
+    img := Init("smiley.png")
+    fmt.Println(img.GetRGB(70, 80))
+
 }

@@ -2,29 +2,34 @@ package main
 
 import (
     "bufio"
-    //"flag"
-    //"fmt"
     "image"
-    //"image/color"
     "image/draw"
     "image/png"
-    //"io/ioutil"
     "log"
     "os"
 )
 
 type Pic struct {
-    img image.RGBA
+    img *image.RGBA
 }
 
 
 func Init(pictureInputFile string) Pic {
-    return Pic(imageToRGBA(decodeImage(pictureInputFile)))
+
+    var pic Pic
+    pic.img = imageToRGBA(decodeImage(pictureInputFile))
+
+    return pic
 }
 
-func (p Pic) GetRGB(x, y int) int {
+func (p Pic) GetRGB(x, y int) (r, g, b uint8) {
 
-    return p.img.RGBAAt(x, y) // get the color at this pixel
+    pixel := p.img.RGBAAt(x, y) // get the color at this pixel
+    r = pixel.R
+    g = pixel.G
+    b = pixel.B
+
+    return
 }
 
 // will write out a given image to a given path in filename

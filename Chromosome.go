@@ -27,7 +27,7 @@ func Mutate(population []Chromosome, chanceToModifyPopulation float64) []Chromos
 
 	for rand.Float64() < chanceToModifyPopulation { // if you decided to mutate...
 
-		modifiedChromosome := randomInt(0, len(population)) // pick a random chromosome to modify
+		//modifiedChromosome := randomInt(0, len(population)) // pick a random chromosome to modify
 
 	}
 
