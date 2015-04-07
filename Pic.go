@@ -7,6 +7,7 @@ import (
     "image/png"
     "log"
     "os"
+//    "image/color"
 )
 
 type Pic struct {
@@ -30,6 +31,17 @@ func (p Pic) GetRGB(x, y int) (r, g, b uint8) {
     b = pixel.B
 
     return
+}
+
+func (p *Pic) SetRGB(x int, y int, r, g, b uint8) {
+
+    c := p.img.RGBAAt(x, y)
+    c.R = r
+    c.G = g
+    c.B = b
+
+    p.img.SetRGBA(x, y, c)
+
 }
 
 // will write out a given image to a given path in filename
