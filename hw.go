@@ -30,12 +30,12 @@ func main() {
 	fmt.Println("Perfect Score: ", trial.Score(original))
 
 	max, min, avg := getPopulationStats(population)
-	fmt.Printf("MAX: %d MIN: %d AVG: %d\n", max, min, avg)
+	fmt.Printf("MAX: %.2f MIN: %.2f AVG: %.2f\n", max, min, avg)
 
 	population = evolve(population, 10, CHANCE_TO_MUTATE_A_POPULATION)
 
 	max, min, avg = getPopulationStats(population)
-	fmt.Printf("MAX: %d MIN: %d AVG: %d\n", max, min, avg)
+	fmt.Printf("MAX: %.2f MIN: %.2f AVG: %.2f\n", max, min, avg)
 
 }
 
@@ -63,7 +63,7 @@ func evolve(population []Chromosome, iterations int, chanceAtMutation float64) [
 	for i := 0; i < iterations; i++ {
 
 		population = getNextGeneration(population)
-		population = Mutate(population, chanceAtMutation)
+		//population = Mutate(population, chanceAtMutation)
 	}
 
 	return population
@@ -93,17 +93,17 @@ func getNextGeneration(oldPopulation []Chromosome) (newPopulation []Chromosome) 
 }
 
 // Provide the average, maximum, and minimum board scores in the population
-func getPopulationStats(population []Chromosome) (avg float64, max uint64, min uint64) {
+func getPopulationStats(population []Chromosome) (avg float64, max float64, min float64) {
 
-	var total uint64 = 0
-	var chromosomeScore uint64 = 0
+	var total float64 = 0
+	var chromosomeScore float64 = 0
 
 	max = 0
 	min = math.MaxUint64
 
 	for _, chromosome := range population {
 
-		chromosomeScore = uint64(chromosome.Score(original))
+		chromosomeScore = float64(chromosome.Score(original))
 
 		total += chromosomeScore
 

@@ -35,7 +35,7 @@ func (chromosome *Chromosome) Score(original Pic) float64 {
 		}
 	}
 
-	return perfectScore - differenceInColors
+	return ((perfectScore - differenceInColors)/perfectScore)*100
 }
 
 // Will randomly mutate random genes in random chromosomes within a given population
