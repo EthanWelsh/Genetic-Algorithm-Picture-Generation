@@ -1,17 +1,17 @@
 package main
 
 import (
-	"math/rand"
 	"math"
+	"math/rand"
 )
 
 const (
-	CROSSOVER_RATE = .7
+	CROSSOVER_RATE  = .7
 	CHROMOSOME_SIZE = 50
 )
 
 type Chromosome struct {
-	pic Pic
+	pic  Pic
 	rows int
 	cols int
 }
@@ -24,14 +24,14 @@ func (chromosome *Chromosome) Score(original Pic) float64 {
 	rows := original.img.Bounds().Dx()
 	cols := original.img.Bounds().Dy()
 
-	perfectScore := float64((math.MaxUint8*3)*(rows*cols))
+	perfectScore := float64((math.MaxUint8 * 3) * (rows * cols))
 
 	for r := 0; r < original.img.Bounds().Dx(); r++ {
-		for c:= 0; c < original.img.Bounds().Dy(); c++ {
+		for c := 0; c < original.img.Bounds().Dy(); c++ {
 			ra, ga, ba := chromosome.pic.GetRGB(r, c)
 			rb, gb, bb := original.GetRGB(r, c)
 
-			differenceInColors += math.Abs(float64(ra - rb)) + math.Abs(float64(ga - gb)) + math.Abs(float64(ba - bb))
+			differenceInColors += math.Abs(float64(ra-rb)) + math.Abs(float64(ga-gb)) + math.Abs(float64(ba-bb))
 		}
 	}
 
@@ -48,8 +48,8 @@ func Mutate(population []Chromosome, chanceToModifyPopulation float64) []Chromos
 	for rand.Float64() < chanceToModifyPopulation { // if you decided to mutate...
 
 		modifiedChromosome := randomInt(0, len(population)) // pick a random chromosome to modify
-		modifiedRow := randomInt(0, population[modifiedChromosome].rows - 1)
-		modifiedCol := randomInt(0, population[modifiedChromosome].cols - 1)
+		modifiedRow := randomInt(0, population[modifiedChromosome].rows-1)
+		modifiedCol := randomInt(0, population[modifiedChromosome].cols-1)
 		modifiedColor := randomInt(0, 2)
 
 		mutantColorValue := uint8(randomInt(0, math.MaxUint8))
