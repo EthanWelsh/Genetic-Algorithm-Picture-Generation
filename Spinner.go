@@ -13,7 +13,7 @@ type Spinner struct {
 }
 
 // Add chromosomes to the spinner to be randomly selected from later
-func (s *Spinner) addOptions(c []Chromosome) {
+func (s *Spinner) addOptions(c []Chromosome, original Pic) {
 
 	s.chromosomes = c
 
@@ -23,7 +23,7 @@ func (s *Spinner) addOptions(c []Chromosome) {
 
 	// Remember the scores of each of the chromosomes and keep track of the over score for the population
 	for i, chromosome := range c {
-		score[i] = chromosome.Score()
+		score[i] = chromosome.Score(original)
 		total += float64(score[i])
 	}
 

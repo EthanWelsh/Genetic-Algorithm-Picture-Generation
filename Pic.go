@@ -7,25 +7,25 @@ import (
     "image/png"
     "log"
     "os"
-//    "image/color"
 )
 
 type Pic struct {
-    img *image.RGBA
+    img image.RGBA
 }
-
 
 func Init(pictureInputFile string) Pic {
 
     var pic Pic
-    pic.img = imageToRGBA(decodeImage(pictureInputFile))
+    pic.img = *imageToRGBA(decodeImage(pictureInputFile))
 
     return pic
 }
 
-func (p Pic) GetRGB(x, y int) (r, g, b uint8) {
+func (p *Pic) GetRGB(x, y int) (r, g, b uint8) {
 
-    pixel := p.img.RGBAAt(x, y) // get the color at this pixel
+    img := p.img
+
+    pixel := img.RGBAAt(x, y) // get the color at this pixel
     r = pixel.R
     g = pixel.G
     b = pixel.B
