@@ -3,11 +3,13 @@ package main
 import (
 	"math"
 	"math/rand"
+	//"fmt"
+	//"image"
+	"image"
 )
 
 const (
 	CROSSOVER_RATE  = .7
-	CHROMOSOME_SIZE = 50
 )
 
 type Chromosome struct {
@@ -131,6 +133,9 @@ func GetRandomChromosome(p *Pic) (chromosome Chromosome) {
 	chromosome.rows = p.img.Bounds().Dx()
 	chromosome.cols = p.img.Bounds().Dy()
 
+	chromosome.pic.img = *image.NewRGBA(image.Rect(0, 0, p.img.Bounds().Dx(), p.img.Bounds().Dy()))
+
+
 	for x := 0; x < chromosome.rows; x++ {
 		for y := 0; y < chromosome.cols; y++ {
 
@@ -138,7 +143,11 @@ func GetRandomChromosome(p *Pic) (chromosome Chromosome) {
 			randomGreen := uint8(randomInt(0, math.MaxUint8))
 			randomBlue := uint8(randomInt(0, math.MaxUint8))
 
-			chromosome.pic.SetRGB(x, y, randomRed, randomGreen, randomBlue)
+			pixel := p.img.RGBAAt(x, y) // get the color at this pixel
+			pixel.R = randomRed
+			pixel.G = randomGreen
+			pixel.B = randomBlue
+			chromosome.pic.img.Set(x, y, pixel)
 		}
 	}
 

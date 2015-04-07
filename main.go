@@ -23,12 +23,6 @@ func main() {
 	original = Init("smiley.png")
 	population := getRandomPopulation()
 
-	var trial Chromosome
-	trial.pic = original
-	//trial.Score(original)
-
-	fmt.Println("Perfect Score: ", trial.Score(original))
-
 	max, min, avg := getPopulationStats(population)
 	fmt.Printf("MAX: %.2f MIN: %.2f AVG: %.2f\n", max, min, avg)
 
