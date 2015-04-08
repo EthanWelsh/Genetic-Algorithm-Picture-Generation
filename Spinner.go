@@ -50,7 +50,7 @@ func (s *Spinner) Spin(chromosomeChan chan Chromosome)  {
 	var indexOfChromosome int
 	var randomChromosome Chromosome
 
-	for i := 0; i < POPULATION_SIZE; i++ {
+	for i := 0; i < POPULATION_SIZE*2; i++ {
 		randomIndexInWheel = randomInt(0, len(s.wheel))
 		indexOfChromosome = s.wheel[randomIndexInWheel]
 		randomChromosome = s.chromosomes[indexOfChromosome]

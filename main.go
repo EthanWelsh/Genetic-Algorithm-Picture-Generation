@@ -11,7 +11,7 @@ import (
 const (
 	CHANCE_TO_MUTATE_A_POPULATION = .90
 
-	POPULATION_SIZE = 100
+	POPULATION_SIZE = 3000
 	UNASSIGNED      = 0
 )
 
@@ -22,10 +22,10 @@ var Height int
 func main() {
 
 	rand.Seed(int64(time.Now().UnixNano()))
-	original = Init("smiley.png")
+	original = Init("gray.png")
 	population := getRandomPopulation()
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 100; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
 
@@ -35,7 +35,7 @@ func main() {
 		maxScore := 0.0
 		maxScoreIndex := 0
 
-		population = evolve(population, 1, CHANCE_TO_MUTATE_A_POPULATION)
+		population = evolve(population, 100, CHANCE_TO_MUTATE_A_POPULATION)
 
 		for i := range population {
 
@@ -93,7 +93,7 @@ func getNextGeneration(oldPopulation []Chromosome) (newPopulation []Chromosome) 
 
 	go randomChromosomeSelector.Spin(spinChan)
 
-	for i := 0; i < POPULATION_SIZE/2; i++ {
+	for i := 0; i < POPULATION_SIZE; i++ {
 
 		// Mate them and add their children to the new population
 		go MateChromosome(<-spinChan, <-spinChan, chromosomeChan)

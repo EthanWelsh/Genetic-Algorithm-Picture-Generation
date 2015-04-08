@@ -4,11 +4,11 @@ import (
 	"math"
 	"math/rand"
 	"image"
-	"fmt"
+	//"fmt"
 )
 
 const (
-	CROSSOVER_RATE  = .7
+	CROSSOVER_RATE  = .666
 )
 
 type Chromosome struct {
@@ -95,11 +95,9 @@ func MateChromosome(a Chromosome, b Chromosome, chromosomeChan chan Chromosome) 
 	var ra, ga, ba uint8
 	var rb, gb, bb uint8
 	var rc, gc, bc uint8
-	var rd, gd, bd uint8
-	var c, d Chromosome
+	var c Chromosome
 
 	c.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
-	d.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
 
 	if rand.Float64() < CROSSOVER_RATE {
 
@@ -116,9 +114,9 @@ func MateChromosome(a Chromosome, b Chromosome, chromosomeChan chan Chromosome) 
 				gb = pixelD.G
 				bb = pixelD.B
 
-				rc, rd = crossBitString(ra, rb)
-				gc, gd = crossBitString(ga, gb)
-				bc, bd = crossBitString(ba, bb)
+				rc = crossBitString(ra, rb)
+				gc = crossBitString(ga, gb)
+				bc = crossBitString(ba, bb)
 
 				pixelC.R = rc
 				pixelC.G = gc
@@ -126,37 +124,19 @@ func MateChromosome(a Chromosome, b Chromosome, chromosomeChan chan Chromosome) 
 
 				c.pic.img.Set(x, y, pixelC)
 
-				pixelD.R = rd
-				pixelD.G = gd
-				pixelD.B = bd
-
-				d.pic.img.Set(x, y, pixelD)
 			}
 		}
 		chromosomeChan <- c
-		chromosomeChan <- d
 	}
 	chromosomeChan <- a
 	chromosomeChan <- b
 }
 
-func crossBitString(a, b uint8) (c, d uint8) {
+func crossBitString(a, b uint8) (c uint8) {
 
-	crossoverPoint := uint(randomInt(1, 7))
+	c = ( a + b ) / 2
 
-	var bitMask uint8 = 255 << crossoverPoint
-
-	crossLeftc  :=  bitMask & a
-	crossRightc := ^bitMask & b
-
-	c = crossLeftc | crossRightc
-
-	crossLeftd  := ^bitMask & a
-	crossRightd :=  bitMask & b
-
-	d = crossLeftd | crossRightd
-
-	return c, d
+	return c
 }
 
 // Generates a random gene sequence that represents a possible partial solution to the given board
@@ -185,9 +165,9 @@ func GetRandomChromosome(p *Pic, chromosomeChan chan Chromosome) {
 
 		chromosomeChan <- chromosome
 
-		if i%(POPULATION_SIZE/10) == 0 {
-			fmt.Print((float64(i)/POPULATION_SIZE)*100.00, "%    ")
-		}
+		//if i%(POPULATION_SIZE/10) == 0 {
+		//	fmt.Print((float64(i)/POPULATION_SIZE)*100.00, "%    ")
+		//}
 	}
 }
 
