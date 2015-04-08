@@ -15,23 +15,28 @@ type Chromosome struct {
 	pic  Pic
 }
 
+
+
 // Fitness function used to determine the degree of completion of the picture
 func (chromosome *Chromosome) Score(original Pic) float64 {
 
-	differenceInColors := 0.0
+	var worstScore float64 = float64(distance(0.0, 0.0, 0.0, 255.0, 255.0, 255.0) * float64(Width * Height))
 
-	worstScore := float64((math.MaxUint8 * 3) * (Width * Height))
+	differenceInColors := 0.0
 
 	for r := 0; r < Width; r++ {
 		for c := 0; c < Height; c++ {
 			ra, ga, ba := chromosome.pic.GetRGB(r, c)
 			rorig, gorig, borig := original.GetRGB(r, c)
-
-			differenceInColors += math.Abs(float64(ra-rorig)) + math.Abs(float64(ga-gorig)) + math.Abs(float64(ba-borig))
+			differenceInColors += distance(ra, ga, ba, rorig, gorig, borig)
 		}
 	}
 
 	return ((worstScore - differenceInColors)/worstScore)*100
+}
+
+func distance(x1, y1, z1, x2, y2, z2 uint8) float64 {
+	return math.Sqrt(math.Pow(float64(x2-x1), 2) + math.Pow(float64(y2-y1), 2) + math.Pow(float64(z2-z1), 2))
 }
 
 // Will randomly mutate random genes in random chromosomes within a given population

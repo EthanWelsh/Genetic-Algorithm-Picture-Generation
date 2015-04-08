@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	CHANCE_TO_MUTATE_A_POPULATION = .90
+	CHANCE_TO_MUTATE_A_POPULATION = .99
 
-	POPULATION_SIZE = 100
+	POPULATION_SIZE = 1000
 	UNASSIGNED      = 0
 )
 
@@ -22,20 +22,20 @@ var Height int
 func main() {
 
 	rand.Seed(int64(time.Now().UnixNano()))
-	original = Init("smiley.png")
+	original = Init("small.png")
 	population := getRandomPopulation()
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 500; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
 
 		avg, max, min := getPopulationStats(population)
-		fmt.Printf("AVG: %.5f MAX: %.5f MIN: %.5f\n", avg, max, min)
+		fmt.Printf("%d). AVG: %.5f MAX: %.5f MIN: %.5f\n", i, avg, max, min)
 
 		maxScore := 0.0
 		maxScoreIndex := 0
 
-		population = evolve(population, 1, CHANCE_TO_MUTATE_A_POPULATION)
+		population = evolve(population, 100, CHANCE_TO_MUTATE_A_POPULATION)
 
 		for i := range population {
 
