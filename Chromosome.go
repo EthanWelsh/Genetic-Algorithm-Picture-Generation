@@ -7,6 +7,7 @@ import (
 	//"image"
 	"image"
 	//"fmt"
+	//"fmt"
 )
 
 const (
@@ -27,18 +28,18 @@ func (chromosome *Chromosome) Score(original Pic) float64 {
 	rows := original.img.Bounds().Dx()
 	cols := original.img.Bounds().Dy()
 
-	perfectScore := float64((math.MaxUint8 * 3) * (rows * cols))
+	worstScore := float64((math.MaxUint8 * 3) * (rows * cols))
 
 	for r := 0; r < original.img.Bounds().Dx(); r++ {
 		for c := 0; c < original.img.Bounds().Dy(); c++ {
 			ra, ga, ba := chromosome.pic.GetRGB(r, c)
-			rb, gb, bb := original.GetRGB(r, c)
+			rorig, gorig, borig := original.GetRGB(r, c)
 
-			differenceInColors += math.Abs(float64(ra-rb)) + math.Abs(float64(ga-gb)) + math.Abs(float64(ba-bb))
+			differenceInColors += math.Abs(float64(ra-rorig)) + math.Abs(float64(ga-gorig)) + math.Abs(float64(ba-borig))
 		}
 	}
 
-	return ((perfectScore - differenceInColors)/perfectScore)*100
+	return ((worstScore - differenceInColors)/worstScore)*100
 }
 
 // Will randomly mutate random genes in random chromosomes within a given population
@@ -89,15 +90,31 @@ func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 		for x := 0; x < a.rows; x++ {
 			for y := 0; y < a.cols; y++ {
 
-				ra, ga, ba = a.pic.GetRGB(x, y)
-				rb, gb, bb = b.pic.GetRGB(x, y)
+				pixelC := a.pic.img.RGBAAt(x, y)
+				ra = pixelC.R
+				ga = pixelC.G
+				ba = pixelC.B
+
+				pixelD := b.pic.img.RGBAAt(x, y)
+				rb = pixelD.R
+				gb = pixelD.G
+				bb = pixelD.B
 
 				rc, rd = crossBitString(ra, rb)
 				gc, gd = crossBitString(ga, gb)
 				bc, bd = crossBitString(ba, bb)
 
-				c.pic.SetRGB(x, y, rc, gc, bc)
-				d.pic.SetRGB(x, y, rd, gd, bd)
+				pixelC.R = rc
+				pixelC.G = gc
+				pixelC.B = bc
+
+				c.pic.img.Set(x, y, pixelC)
+
+				pixelD.R = rd
+				pixelD.G = gd
+				pixelD.B = bd
+
+				d.pic.img.Set(x, y, pixelD)
 			}
 		}
 		return c, d

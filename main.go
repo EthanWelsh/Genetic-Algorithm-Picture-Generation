@@ -23,10 +23,6 @@ func main() {
 	original = Init("smiley.png")
 	population := getRandomPopulation()
 
-	//avg, max, min := getPopulationStats(population)
-	//fmt.Printf("AVG: %.5f MAX: %.5f MIN: %.5f\n", avg, max, min)
-
-
 	for i := 0; i < 5; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
@@ -36,6 +32,8 @@ func main() {
 
 		maxScore := 0.0
 		maxScoreIndex := 0
+
+		population = evolve(population, 1, CHANCE_TO_MUTATE_A_POPULATION)
 
 		for i := range population {
 
@@ -47,11 +45,7 @@ func main() {
 
 		EncodePNG(fname, &population[maxScoreIndex].pic.img)
 
-		population = evolve(population, 1, CHANCE_TO_MUTATE_A_POPULATION)
 	}
-
-
-
 }
 
 func getRandomPopulation() []Chromosome {
@@ -84,7 +78,6 @@ func evolve(population []Chromosome, iterations int, chanceAtMutation float64) [
 	fmt.Println(population[0].Score(original))
 
 	return population
-
 }
 
 // Performs reproduction and returns the resulting population
