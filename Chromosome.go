@@ -45,18 +45,41 @@ func Mutate(population []Chromosome, chanceToModifyPopulation float64) []Chromos
 		modifiedChromosome := randomInt(0, len(population)) // pick a random chromosome to modify
 		modifiedRow := randomInt(0, Width-1)
 		modifiedCol := randomInt(0, Height-1)
-		modifiedColor := randomInt(0, 2)
 
-		mutantColorValue := uint8(randomInt(0, math.MaxUint8))
+		modifiedColor := randomInt(0, 2)
 
 		red, green, blue := population[modifiedChromosome].pic.GetRGB(modifiedRow, modifiedCol)
 
+		indexInByteToFlip := uint32(randomInt(0, 7))
+		currentValueInByte := byte(0)
+
 		if modifiedColor == 0 { // Red
-			red = mutantColorValue
+
+			currentValueInByte = getBitFromByte(red, int(indexInByteToFlip))
+
+			if currentValueInByte == 0 {
+				red = setBitInByte(red, indexInByteToFlip, 1)
+			} else {
+				red = setBitInByte(red, indexInByteToFlip, 0)
+			}
+
+
 		} else if modifiedColor == 1 { // Green
-			green = mutantColorValue
+			currentValueInByte = getBitFromByte(green, int(indexInByteToFlip))
+
+			if currentValueInByte == 0 {
+				green = setBitInByte(green, indexInByteToFlip, 1)
+			} else {
+				green = setBitInByte(green, indexInByteToFlip, 0)
+			}
 		} else { // Blue
-			blue = mutantColorValue
+			currentValueInByte = getBitFromByte(blue, int(indexInByteToFlip))
+
+			if currentValueInByte == 0 {
+				blue = setBitInByte(blue, indexInByteToFlip, 1)
+			} else {
+				blue = setBitInByte(blue, indexInByteToFlip, 0)
+			}
 		}
 
 		population[modifiedChromosome].pic.SetRGB(modifiedRow, modifiedCol, red, green, blue)

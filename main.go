@@ -25,7 +25,7 @@ func main() {
 	original = Init("smiley.png")
 	population := getRandomPopulation()
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 100; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
 
