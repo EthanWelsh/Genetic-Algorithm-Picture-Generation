@@ -74,10 +74,8 @@ func evolve(population []Chromosome, iterations int, chanceAtMutation float64) [
 	for i := 0; i < iterations; i++ {
 
 		population = getNextGeneration(population)
-		//population = Mutate(population, chanceAtMutation)
+		population = Mutate(population, chanceAtMutation)
 	}
-
-	fmt.Println(population[0].Score(original))
 
 	return population
 }

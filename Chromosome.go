@@ -3,11 +3,7 @@ package main
 import (
 	"math"
 	"math/rand"
-	//"fmt"
-	//"image"
 	"image"
-	//"fmt"
-	//"fmt"
 )
 
 const (
