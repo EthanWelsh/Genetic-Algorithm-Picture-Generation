@@ -7,10 +7,11 @@ import (
 	"image/png"
 	"log"
 	"os"
+
 )
 
 type Pic struct {
-	img image.RGBA
+    img image.RGBA
 }
 
 func Init(pictureInputFile string) Pic {
@@ -23,42 +24,32 @@ func Init(pictureInputFile string) Pic {
 
 func (p *Pic) GetRGB(x, y int) (r, g, b uint8) {
 
-	img := p.img
-
-	pixel := img.RGBAAt(x, y) // get the color at this pixel
-	r = pixel.R
-	g = pixel.G
-	b = pixel.B
-
-	return
+    pixel := p.img.RGBAAt(x, y) // get the color at this pixel
+    return pixel.R, pixel.G, pixel.B
 }
 
 func (p *Pic) SetRGB(x int, y int, r, g, b uint8) {
-
-	c := p.img.RGBAAt(x, y)
-	c.R = r
-	c.G = g
-	c.B = b
-
-	p.img.SetRGBA(x, y, c)
-
+    pixel := p.img.RGBAAt(x, y) // get the color at this pixel
+    pixel.R = r
+    pixel.G = g
+    pixel.B = b
+    p.img.Set(x, y, pixel)
 }
 
-// will write out a given image to a given path in filename
-func encodePNG(filename string, img image.Image) {
-	fo, err := os.Create(filename)
+func EncodePNG(filename string, img image.Image) {
+    fo, err := os.Create(filename)
 
-	if err != nil {
-		log.Fatalf("Error creating file %s: %v", filename, err)
-	}
+    if err != nil {
+        log.Fatalf("Error creating file %s: %v", filename, err)
+    }
 
-	defer fo.Close()
-	defer fo.Sync()
+    defer fo.Close()
+    defer fo.Sync()
 
-	writer := bufio.NewWriter(fo)
-	defer writer.Flush()
+    writer := bufio.NewWriter(fo)
+    defer writer.Flush()
 
-	err = png.Encode(writer, img)
+    err = png.Encode(writer, img)
 }
 
 // convert given image to RGBA image

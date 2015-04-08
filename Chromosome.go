@@ -6,6 +6,7 @@ import (
 	//"fmt"
 	//"image"
 	"image"
+	//"fmt"
 )
 
 const (
@@ -82,6 +83,9 @@ func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 	var rc, gc, bc uint8
 	var rd, gd, bd uint8
 
+	c.pic.img = *image.NewRGBA(image.Rect(0, 0, a.pic.img.Bounds().Dx(), a.pic.img.Bounds().Dy()))
+	d.pic.img = *image.NewRGBA(image.Rect(0, 0, a.pic.img.Bounds().Dx(), a.pic.img.Bounds().Dy()))
+
 	if rand.Float64() < CROSSOVER_RATE {
 
 		for x := 0; x < a.rows; x++ {
@@ -119,7 +123,6 @@ func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 
 				c.pic.SetRGB(x, y, rc, gc, bc)
 				d.pic.SetRGB(x, y, rd, gd, bd)
-
 			}
 		}
 		return c, d

@@ -23,13 +23,24 @@ func main() {
 	original = Init("smiley.png")
 	population := getRandomPopulation()
 
-	max, min, avg := getPopulationStats(population)
-	fmt.Printf("MAX: %.2f MIN: %.2f AVG: %.2f\n", max, min, avg)
+	avg, max, min := getPopulationStats(population)
+	fmt.Printf("AVG: %.5f MAX: %.5f MIN: %.5f\n", avg, max, min)
 
-	population = evolve(population, 10, CHANCE_TO_MUTATE_A_POPULATION)
 
-	max, min, avg = getPopulationStats(population)
-	fmt.Printf("MAX: %.2f MIN: %.2f AVG: %.2f\n", max, min, avg)
+	for i := 0; i < 5; i++ {
+
+		fname := fmt.Sprintf("results/res%d.png", i)
+		EncodePNG(fname, &population[0].pic.img)
+
+		population = evolve(population, 1, CHANCE_TO_MUTATE_A_POPULATION)
+
+		avg, max, min = getPopulationStats(population)
+		fmt.Printf("AVG: %.5f MAX: %.5f MIN: %.5f\n", avg, max, min)
+
+
+	}
+
+
 
 }
 
@@ -59,6 +70,8 @@ func evolve(population []Chromosome, iterations int, chanceAtMutation float64) [
 		population = getNextGeneration(population)
 		//population = Mutate(population, chanceAtMutation)
 	}
+
+	fmt.Println(population[0].Score(original))
 
 	return population
 
