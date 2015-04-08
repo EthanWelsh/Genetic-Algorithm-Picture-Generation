@@ -76,8 +76,6 @@ func Mutate(population []Chromosome, chanceToModifyPopulation float64) []Chromos
 // Will perform a crossover operation between two chromosomes
 func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 
-	var fromA uint8
-
 	var ra, ga, ba uint8
 	var rb, gb, bb uint8
 	var rc, gc, bc uint8
@@ -94,32 +92,9 @@ func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 				ra, ga, ba = a.pic.GetRGB(x, y)
 				rb, gb, bb = b.pic.GetRGB(x, y)
 
-				fromA = uint8(randomInt(0, 1))
-				if fromA == 1 {
-					rc = ra
-					rd = rb
-				} else {
-					rd = ra
-					rc = rb
-				}
-
-				fromA = uint8(randomInt(0, 1))
-				if fromA == 1 {
-					gc = ga
-					gd = gb
-				} else {
-					gd = ga
-					gc = gb
-				}
-
-				fromA = uint8(randomInt(0, 1))
-				if fromA == 1 {
-					bc = ba
-					bd = bb
-				} else {
-					bd = ba
-					bc = bb
-				}
+				rc, rd = crossBitString(ra, rb)
+				gc, gd = crossBitString(ga, gb)
+				bc, bd = crossBitString(ba, bb)
 
 				c.pic.SetRGB(x, y, rc, gc, bc)
 				d.pic.SetRGB(x, y, rd, gd, bd)
@@ -128,6 +103,25 @@ func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 		return c, d
 	}
 	return a, b
+}
+
+func crossBitString(a, b uint8) (c, d uint8) {
+
+	crossoverPoint := uint(randomInt(1, 7))
+
+	var bitMask uint8 = 255 << crossoverPoint
+
+	crossLeftc  :=  bitMask & a
+	crossRightc := ^bitMask & b
+
+	c = crossLeftc | crossRightc
+
+	crossLeftd  := ^bitMask & a
+	crossRightd :=  bitMask & b
+
+	d = crossLeftd | crossRightd
+
+	return c, d
 }
 
 // Generates a random gene sequence that represents a possible partial solution to the given board
