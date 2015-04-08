@@ -23,21 +23,31 @@ func main() {
 	original = Init("smiley.png")
 	population := getRandomPopulation()
 
-	avg, max, min := getPopulationStats(population)
-	fmt.Printf("AVG: %.5f MAX: %.5f MIN: %.5f\n", avg, max, min)
+	//avg, max, min := getPopulationStats(population)
+	//fmt.Printf("AVG: %.5f MAX: %.5f MIN: %.5f\n", avg, max, min)
 
 
 	for i := 0; i < 5; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
-		EncodePNG(fname, &population[0].pic.img)
 
-		population = evolve(population, 1, CHANCE_TO_MUTATE_A_POPULATION)
-
-		avg, max, min = getPopulationStats(population)
+		avg, max, min := getPopulationStats(population)
 		fmt.Printf("AVG: %.5f MAX: %.5f MIN: %.5f\n", avg, max, min)
 
+		maxScore := 0.0
+		maxScoreIndex := 0
 
+		for i := range population {
+
+			if population[i].Score(original) > maxScore {
+				maxScore = population[i].Score(original)
+				maxScoreIndex = i
+			}
+		}
+
+		EncodePNG(fname, &population[maxScoreIndex].pic.img)
+
+		population = evolve(population, 1, CHANCE_TO_MUTATE_A_POPULATION)
 	}
 
 
