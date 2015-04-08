@@ -44,13 +44,19 @@ func (s *Spinner) addOptions(c []Chromosome, original Pic) {
 }
 
 // Randomly picks a chromosomes to reproduce, giving preference to those chromosomes with a high fitness value
-func (s *Spinner) Spin() Chromosome {
+func (s *Spinner) Spin(chromosomeChan chan Chromosome)  {
 
-	randomIndexInWheel := randomInt(0, len(s.wheel))
-	indexOfChromosome := s.wheel[randomIndexInWheel]
-	randomChromosome := s.chromosomes[indexOfChromosome]
+	var randomIndexInWheel int
+	var indexOfChromosome int
+	var randomChromosome Chromosome
 
-	return randomChromosome
+	for i := 0; i < POPULATION_SIZE; i++ {
+		randomIndexInWheel = randomInt(0, len(s.wheel))
+		indexOfChromosome = s.wheel[randomIndexInWheel]
+		randomChromosome = s.chromosomes[indexOfChromosome]
+
+		chromosomeChan <- randomChromosome
+	}
 }
 
 // Self-explanatory!

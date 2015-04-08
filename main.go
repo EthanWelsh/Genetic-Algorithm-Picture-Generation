@@ -25,7 +25,7 @@ func main() {
 	original = Init("smiley.png")
 	population := getRandomPopulation()
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 1000; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
 
@@ -55,13 +55,13 @@ func getRandomPopulation() []Chromosome {
 
 	fmt.Println("Generating", POPULATION_SIZE, "random solutions. This may take a while...")
 
-	// Generate random partial solutions to the given board
-	for i := range population {
-		population[i] = GetRandomChromosome(&original)
+	chromosomeChan := make(chan Chromosome, POPULATION_SIZE)
 
-		if i%(POPULATION_SIZE/10) == 0 {
-			fmt.Print((float64(i)/POPULATION_SIZE)*100.00, "%    ")
-		}
+	// Generate random partial solutions to the given board
+	go GetRandomChromosome(&original, chromosomeChan)
+
+	for i := range population {
+		population[i] = <-chromosomeChan
 	}
 
 	fmt.Println("100%\nDone generating solutions! Starting evolution...")
@@ -87,17 +87,16 @@ func getNextGeneration(oldPopulation []Chromosome) (newPopulation []Chromosome) 
 	randomChromosomeSelector.addOptions(oldPopulation, original)
 
 	chromosomeChan := make(chan Chromosome, POPULATION_SIZE)
+	spinChan       := make(chan Chromosome, POPULATION_SIZE)
 
 	newPopulation = make([]Chromosome, POPULATION_SIZE)
 
-	for i := 0; i < len(newPopulation); i += 2 {
+	go randomChromosomeSelector.Spin(spinChan)
 
-		// Get mating partner A & B
-		phenotypeA := randomChromosomeSelector.Spin()
-		phenotypeB := randomChromosomeSelector.Spin()
+	for i := 0; i < POPULATION_SIZE/2; i++ {
 
 		// Mate them and add their children to the new population
-		go MateChromosome(phenotypeA, phenotypeB, chromosomeChan)
+		go MateChromosome(<-spinChan, <-spinChan, chromosomeChan)
 
 	}
 

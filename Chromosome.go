@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"image"
+	"fmt"
 )
 
 const (
@@ -159,27 +160,35 @@ func crossBitString(a, b uint8) (c, d uint8) {
 }
 
 // Generates a random gene sequence that represents a possible partial solution to the given board
-func GetRandomChromosome(p *Pic) (chromosome Chromosome) {
+func GetRandomChromosome(p *Pic, chromosomeChan chan Chromosome) {
 
-	chromosome.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
+	var chromosome Chromosome
+
+	for i := 0; i < POPULATION_SIZE; i++ {
+		chromosome.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
 
 
-	for x := 0; x < Width; x++ {
-		for y := 0; y < Height; y++ {
+		for x := 0; x < Width; x++ {
+			for y := 0; y < Height; y++ {
 
-			randomRed := uint8(randomInt(0, math.MaxUint8))
-			randomGreen := uint8(randomInt(0, math.MaxUint8))
-			randomBlue := uint8(randomInt(0, math.MaxUint8))
+				randomRed := uint8(randomInt(0, math.MaxUint8))
+				randomGreen := uint8(randomInt(0, math.MaxUint8))
+				randomBlue := uint8(randomInt(0, math.MaxUint8))
 
-			pixel := p.img.RGBAAt(x, y) // get the color at this pixel
-			pixel.R = randomRed
-			pixel.G = randomGreen
-			pixel.B = randomBlue
-			chromosome.pic.img.Set(x, y, pixel)
+				pixel := p.img.RGBAAt(x, y) // get the color at this pixel
+				pixel.R = randomRed
+				pixel.G = randomGreen
+				pixel.B = randomBlue
+				chromosome.pic.img.Set(x, y, pixel)
+			}
+		}
+
+		chromosomeChan <- chromosome
+
+		if i%(POPULATION_SIZE/10) == 0 {
+			fmt.Print((float64(i)/POPULATION_SIZE)*100.00, "%    ")
 		}
 	}
-
-	return chromosome
 }
 
 // Generates a random integer between min and max (inclusive)
