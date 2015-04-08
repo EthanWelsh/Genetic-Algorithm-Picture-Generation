@@ -16,8 +16,6 @@ const (
 
 type Chromosome struct {
 	pic  Pic
-	rows int
-	cols int
 }
 
 // Fitness function used to determine the degree of completion of the picture
@@ -25,13 +23,10 @@ func (chromosome *Chromosome) Score(original Pic) float64 {
 
 	differenceInColors := 0.0
 
-	rows := original.img.Bounds().Dx()
-	cols := original.img.Bounds().Dy()
+	worstScore := float64((math.MaxUint8 * 3) * (Width * Height))
 
-	worstScore := float64((math.MaxUint8 * 3) * (rows * cols))
-
-	for r := 0; r < original.img.Bounds().Dx(); r++ {
-		for c := 0; c < original.img.Bounds().Dy(); c++ {
+	for r := 0; r < Width; r++ {
+		for c := 0; c < Height; c++ {
 			ra, ga, ba := chromosome.pic.GetRGB(r, c)
 			rorig, gorig, borig := original.GetRGB(r, c)
 
@@ -52,8 +47,8 @@ func Mutate(population []Chromosome, chanceToModifyPopulation float64) []Chromos
 	for rand.Float64() < chanceToModifyPopulation { // if you decided to mutate...
 
 		modifiedChromosome := randomInt(0, len(population)) // pick a random chromosome to modify
-		modifiedRow := randomInt(0, population[modifiedChromosome].rows-1)
-		modifiedCol := randomInt(0, population[modifiedChromosome].cols-1)
+		modifiedRow := randomInt(0, Width-1)
+		modifiedCol := randomInt(0, Height-1)
 		modifiedColor := randomInt(0, 2)
 
 		mutantColorValue := uint8(randomInt(0, math.MaxUint8))
@@ -82,13 +77,13 @@ func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 	var rc, gc, bc uint8
 	var rd, gd, bd uint8
 
-	c.pic.img = *image.NewRGBA(image.Rect(0, 0, a.pic.img.Bounds().Dx(), a.pic.img.Bounds().Dy()))
-	d.pic.img = *image.NewRGBA(image.Rect(0, 0, a.pic.img.Bounds().Dx(), a.pic.img.Bounds().Dy()))
+	c.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
+	d.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
 
 	if rand.Float64() < CROSSOVER_RATE {
 
-		for x := 0; x < a.rows; x++ {
-			for y := 0; y < a.cols; y++ {
+		for x := 0; x < Width; x++ {
+			for y := 0; y < Height; y++ {
 
 				pixelC := a.pic.img.RGBAAt(x, y)
 				ra = pixelC.R
@@ -144,14 +139,11 @@ func crossBitString(a, b uint8) (c, d uint8) {
 // Generates a random gene sequence that represents a possible partial solution to the given board
 func GetRandomChromosome(p *Pic) (chromosome Chromosome) {
 
-	chromosome.rows = p.img.Bounds().Dx()
-	chromosome.cols = p.img.Bounds().Dy()
-
-	chromosome.pic.img = *image.NewRGBA(image.Rect(0, 0, p.img.Bounds().Dx(), p.img.Bounds().Dy()))
+	chromosome.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
 
 
-	for x := 0; x < chromosome.rows; x++ {
-		for y := 0; y < chromosome.cols; y++ {
+	for x := 0; x < Width; x++ {
+		for y := 0; y < Height; y++ {
 
 			randomRed := uint8(randomInt(0, math.MaxUint8))
 			randomGreen := uint8(randomInt(0, math.MaxUint8))

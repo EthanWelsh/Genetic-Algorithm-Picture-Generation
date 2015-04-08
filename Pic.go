@@ -19,6 +19,9 @@ func Init(pictureInputFile string) Pic {
 	var pic Pic
 	pic.img = *imageToRGBA(decodeImage(pictureInputFile))
 
+	Width  = pic.img.Bounds().Dx()
+	Height = pic.img.Bounds().Dy()
+
 	return pic
 }
 

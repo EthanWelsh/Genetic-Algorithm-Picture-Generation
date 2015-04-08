@@ -16,6 +16,8 @@ const (
 )
 
 var original Pic
+var Width  int
+var Height int
 
 func main() {
 
