@@ -70,12 +70,13 @@ func Mutate(population []Chromosome, chanceToModifyPopulation float64) []Chromos
 }
 
 // Will perform a crossover operation between two chromosomes
-func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
+func MateChromosome(a Chromosome, b Chromosome, chromosomeChan chan Chromosome) {
 
 	var ra, ga, ba uint8
 	var rb, gb, bb uint8
 	var rc, gc, bc uint8
 	var rd, gd, bd uint8
+	var c, d Chromosome
 
 	c.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
 	d.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
@@ -112,9 +113,11 @@ func MateChromosome(a Chromosome, b Chromosome) (c Chromosome, d Chromosome) {
 				d.pic.img.Set(x, y, pixelD)
 			}
 		}
-		return c, d
+		chromosomeChan <- c
+		chromosomeChan <- d
 	}
-	return a, b
+	chromosomeChan <- a
+	chromosomeChan <- b
 }
 
 func crossBitString(a, b uint8) (c, d uint8) {

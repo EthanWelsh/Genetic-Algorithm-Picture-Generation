@@ -25,6 +25,7 @@ func main() {
 	original = Init("smiley.png")
 	population := getRandomPopulation()
 
+
 	for i := 0; i < 5; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
@@ -88,6 +89,8 @@ func getNextGeneration(oldPopulation []Chromosome) (newPopulation []Chromosome) 
 	var randomChromosomeSelector Spinner
 	randomChromosomeSelector.addOptions(oldPopulation, original)
 
+	chromosomeChan := make(chan Chromosome)
+
 	newPopulation = make([]Chromosome, POPULATION_SIZE)
 
 	for i := 0; i < len(newPopulation); i += 2 {
@@ -97,7 +100,9 @@ func getNextGeneration(oldPopulation []Chromosome) (newPopulation []Chromosome) 
 		phenotypeB := randomChromosomeSelector.Spin()
 
 		// Mate them and add their children to the new population
-		newPopulation[i], newPopulation[i+1] = MateChromosome(phenotypeA, phenotypeB)
+		go MateChromosome(phenotypeA, phenotypeB, chromosomeChan)
+		newPopulation[i] = <-chromosomeChan
+		newPopulation[i+1] = <-chromosomeChan
 
 	}
 
