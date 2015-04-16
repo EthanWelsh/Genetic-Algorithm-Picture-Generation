@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	CHANCE_TO_MUTATE_A_POPULATION = .99
+	CHANCE_TO_MUTATE_A_POPULATION = .97
 
 	POPULATION_SIZE = 1000
 	UNASSIGNED      = 0
@@ -25,7 +25,7 @@ func main() {
 	original = Init("small.png")
 	population := getRandomPopulation()
 
-	for i := 0; i < 500; i++ {
+	for i := 0; i < 100; i++ {
 
 		fname := fmt.Sprintf("results/res%d.png", i)
 
@@ -35,7 +35,7 @@ func main() {
 		maxScore := 0.0
 		maxScoreIndex := 0
 
-		population = evolve(population, 100, CHANCE_TO_MUTATE_A_POPULATION)
+		population = evolve(population, 10, CHANCE_TO_MUTATE_A_POPULATION)
 
 		for i := range population {
 
