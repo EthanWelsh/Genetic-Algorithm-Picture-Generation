@@ -15,6 +15,12 @@ type Chromosome struct {
 	pic  Pic
 }
 
+type MyColor struct {
+	red uint8
+	green uint8
+	blue uint8
+}
+
 
 
 // Fitness function used to determine the degree of completion of the picture
@@ -97,71 +103,71 @@ func Mutate(population []Chromosome, chanceToModifyPopulation float64) []Chromos
 // Will perform a crossover operation between two chromosomes
 func MateChromosome(a Chromosome, b Chromosome, chromosomeChan chan Chromosome) {
 
-	var ra, ga, ba uint8
-	var rb, gb, bb uint8
-	var rc, gc, bc uint8
-	var rd, gd, bd uint8
-	var c, d Chromosome
+	var aa MyColor
+	var bb MyColor
 
-	c.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
-	d.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
+	var chromC, chromD Chromosome
 
-	if rand.Float64() < CROSSOVER_RATE {
+	chromC.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
+	chromD.pic.img = *image.NewRGBA(image.Rect(0, 0, Width, Height))
 
-		for x := 0; x < Width; x++ {
-			for y := 0; y < Height; y++ {
+	var rand uint8
 
-				pixelC := a.pic.img.RGBAAt(x, y)
-				ra = pixelC.R
-				ga = pixelC.G
-				ba = pixelC.B
+	for r := 0; r < Width; r++ {
+		for c := 0; c < Height; c++ {
 
-				pixelD := b.pic.img.RGBAAt(x, y)
-				rb = pixelD.R
-				gb = pixelD.G
-				bb = pixelD.B
+			aa.red, aa.green, aa.blue = a.pic.GetRGB(r, c)
+			bb.red, bb.green, bb.blue = b.pic.GetRGB(r, c)
 
-				rc, rd = crossBitString(ra, rb)
-				gc, gd = crossBitString(ga, gb)
-				bc, bd = crossBitString(ba, bb)
+			rand = uint8(randomInt(0, 24))
 
-				pixelC.R = rc
-				pixelC.G = gc
-				pixelC.B = bc
+			pixelC, pixelD := crossPixel(rand, aa, bb)
 
-				c.pic.img.Set(x, y, pixelC)
+			chromC.pic.SetRGB(r, c, pixelC.red, pixelC.green, pixelC.blue)
+			chromD.pic.SetRGB(r, c, pixelD.red, pixelD.green, pixelD.blue)
 
-				pixelD.R = rd
-				pixelD.G = gd
-				pixelD.B = bd
 
-				d.pic.img.Set(x, y, pixelD)
-			}
 		}
-		chromosomeChan <- c
-		chromosomeChan <- d
 	}
-	chromosomeChan <- a
-	chromosomeChan <- b
+
+	chromosomeChan <- chromC
+	chromosomeChan <- chromD
+
 }
 
-func crossBitString(a, b uint8) (c, d uint8) {
+func crossPixel(split uint8, a MyColor, b MyColor) (c MyColor, d MyColor) {
 
-	crossoverPoint := uint(randomInt(1, 7))
+	if split < 0 || split > 24 {
+		return
+	} else if split < 8 {
+    	c.red, d.red = cut(split, a.red, b.red)
+		c.green, d.green = swap(a.green, b.green)
+		c.blue, d.blue = swap(a.blue, b.blue)
+	} else if split < 16 {
+		c.red, d.red = swap(a.red, b.red)
+		c.green, d.green = cut(split - 8, a.green, b.green)
+		c.blue, d.blue = swap(a.blue, b.blue)
+	} else if split < 24 {
+		c.red, d.red = swap(a.red, b.red)
+		c.blue, d.blue = swap(a.blue, b.blue)
+		c.green, d.green = cut(split - 24, a.green, b.green)
+	}
 
-	var bitMask uint8 = 255 << crossoverPoint
+	return
+}
 
-	crossLeftc  :=  bitMask & a
-	crossRightc := ^bitMask & b
+func swap(a uint8, b uint8) (uint8, uint8) {
+	return b, a
+}
 
-	c = crossLeftc | crossRightc
+func cut(split uint8, a uint8, b uint8) (c uint8, d uint8) {
+	amask := uint8(0xff >> split)
+	bmask := uint8(^amask)
 
-	crossLeftd  := ^bitMask & a
-	crossRightd :=  bitMask & b
+	c = (a & amask) | (b & bmask)
+	d = (b & amask) | (a & bmask)
 
-	d = crossLeftd | crossRightd
-
-	return c, d
+	return
 }
 
 // Generates a random gene sequence that represents a possible partial solution to the given board
