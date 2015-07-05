@@ -76,7 +76,7 @@ class Chromosome:
     def __init__(self, id, width, height, number_of_points_per_shape, max_shape_size, number_of_shapes):
         self.drawing = Drawing(width, height, number_of_points_per_shape, max_shape_size, number_of_shapes)
         self.id = id
-        self.fitness = self.fitness()
+        self.fitness = self.fitness() if number_of_shapes > 0 else 0
 
     def mutate(self):
         """Will randomly mutate random genes in random chromosomes within a given population"""
@@ -84,11 +84,12 @@ class Chromosome:
         num_of_shapes_to_mutate = int(Population.mutation_amount * len(self.drawing.shapes))
 
         for _ in range(0, num_of_shapes_to_mutate):
-            if random.random() < .5:  # color mutation
-                random.choice(self.drawing.shapes).color = Drawing.Shape.Color()
-            else:  # points mutation
-                pass
+            mutate_me = random.choice(self.drawing.shapes)
 
+            if random.random() < .5:  # color mutation
+                mutate_me.color = Drawing.Shape.Color()
+            else:  # points mutation
+                mutate_me.replace_random_point()
 
         # Recalculate organism fitness
         self.fitness = self.fitness()
@@ -101,7 +102,20 @@ class Chromosome:
     @classmethod
     def mate(cls, chromosome_one, chromosome_two):
         """Returns a new chromosome which will be the child of the given two chromosome"""
-        return chromosome_one
+
+        assert(len(chromosome_one.drawing.shapes) == len(chromosome_two.drawing.shapes))
+        assert(chromosome_one.drawing.width == chromosome_two.drawing.width and chromosome_one.drawing.height == chromosome_two.drawing.height)
+
+        new_chromosome = Chromosome(random.getrandbits(128), chromosome_one.drawing.width, chromosome_one.drawing.height, 0, 0, 0)
+
+        for i in range(0, len(chromosome_one.drawing.shapes)):
+
+            if random.random() < .5:
+                new_chromosome.drawing.shapes.append(chromosome_one.drawing.shapes[i])
+            else:
+                new_chromosome.drawing.shapes.append(chromosome_two.drawing.shapes[i])
+
+        return new_chromosome
 
 
 def main():

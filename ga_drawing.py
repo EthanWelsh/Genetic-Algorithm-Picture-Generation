@@ -72,11 +72,18 @@ class Drawing:
             self.points = [self.Point(self.restrictions) for _ in range(0, self.number_of_points)]
             self.color = self.Color()
 
-        def __str__(self):
-            return "Color: {} Points: {}".format(self.color, [str(point) for point in self.points])
-
         def get_point_tup(self):
             return tuple(tuple([point.x, point.y]) for point in self.points)
+
+        def replace_random_point(self):
+            index = random.randint(0, len(self.points))
+            self.points[index] = self.Point(self.restrictions)
+
+
+
+
+        def __str__(self):
+            return "Color: {} Points: {}".format(self.color, [str(point) for point in self.points])
 
     def __init__(self, width, height, points_per_shape, max_shape_size, number_of_shapes=0):
         self.width = width
