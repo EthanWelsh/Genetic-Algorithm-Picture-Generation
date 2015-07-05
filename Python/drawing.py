@@ -1,8 +1,8 @@
 import random
+
 import PIL.ImageDraw
 import PIL.Image
 import PIL.ImageShow
-import sys
 
 
 class Shape:
@@ -11,6 +11,9 @@ class Shape:
             self.r = random.randint(0, 255)
             self.g = random.randint(0, 255)
             self.b = random.randint(0, 255)
+
+        def get_color_tup(self):
+            return tuple([self.r, self.g, self.b])
 
         def distance(self, other_color):
             return abs(self.r - other_color.r) + \
@@ -48,32 +51,39 @@ class Shape:
         self.origin = self.Point(boundaries)
         min_x, min_y, max_x, max_y = boundaries
 
-        # The relative points inside of points must fall within these restrictions
-        self.restrictions = (min(abs(self.origin.x - min_x), abs(self.origin.x - max_size)),
-                             min(abs(self.origin.y - min_y), abs(self.origin.y - max_size)),
-                             min(abs(self.origin.x - max_x), abs(self.origin.x + max_size)),
-                             min(abs(self.origin.y - max_y), abs(self.origin.y + max_size)))
+        # The boundaries in which this shapes' points must fall
+        self.restrictions = (self.origin.x - min(abs(self.origin.x - min_x), max_size),  # min_x
+                             self.origin.y - min(abs(self.origin.y - min_y), max_size),  # min_y
+                             self.origin.x + min(abs(self.origin.x - max_x), max_size),  # max_x
+                             self.origin.y + min(abs(self.origin.y - max_y), max_size))  # max_y
 
         self.points = [self.Point(self.restrictions) for _ in range(0, self.number_of_points)]
         self.color = self.Color()
 
     def __str__(self):
-        return "Color: {} Points: {}".format(self.color, self.points)
+        return "Color: {} Points: {}".format(self.color, [str(point) for point in self.points])
 
+    def get_point_tup(self):
+        return tuple(tuple([point.x, point.y]) for point in self.points)
 
 class Image:
-    def __init__(self, width, height):
-        self.points = []
+    def __init__(self, width, height, points_per_shape, max_shape_size, number_of_shapes = 0):
         self.width = width
         self.height = height
 
-    def add_point(self, point):
-        self.points.append(point)
+        self.points_per_shape = points_per_shape
+        self.max_shape_size = max_shape_size
+        self.shapes = [Shape(self.points_per_shape, self.max_shape_size, (0, 0, self.width, self.height)) for _ in range(0, number_of_shapes)]
+
+    def add_shape(self):
+        self.shapes.append(Shape(self.points_per_shape, self.max_shape_size, (0, 0, self.width, self.height)))
 
     def get_pic_rep(self):
         im = PIL.Image.new("RGB", (self.width, self.height), color=(255, 255, 255))
         draw = PIL.ImageDraw.Draw(im)
-        draw.polygon(self.points, fill=0)
+
+        for shape in self.shapes:
+            draw.polygon(shape.get_point_tup(), fill=shape.color.get_color_tup())
         return im
 
     def show_image(self):
@@ -83,15 +93,6 @@ class Image:
     def closeness(self, other_image):
         return PIL.ImageChops.subtract(self, other_image)
 
-number_of_points = 3
-max_size = 10
-boundaries = (0, 0, 20, 20)
 
-s = Shape(number_of_points, max_size, boundaries)
-
-
-#img = Image(400, 400)
-#img.add_point((50, 100))
-#img.add_point((300, 700))
-#img.add_point((15, 40))
-#img.show_image()
+img = Image(400, 400, 3, 15, 20)
+img.show_image()
