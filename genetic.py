@@ -1,6 +1,6 @@
 import time
 
-from ga_drawing import *
+from drawing import *
 
 seed_image = get_pic_from_url(
     'http://www.homedepot.com/catalog/productImages/400/f9/f901c92f-01d7-4bd4-b18e-464b705f92ad_400.jpg')
