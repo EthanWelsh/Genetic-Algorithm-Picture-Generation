@@ -1,4 +1,5 @@
 import time
+
 from ga_drawing import *
 
 seed_image = get_pic_from_url(
@@ -6,58 +7,67 @@ seed_image = get_pic_from_url(
 
 
 class Population:
+    # What percentage of the next generation should new, made from crossover?
+    crossover_rate = .7
+
+    # What percentage of drawings should be mutated?
+    mutation_rate = .02
+
+    # Of the drawings that are mutated, how many shapes within said drawing should be altered?
+    mutation_amount = .1
+
     def __init__(self, population_size, number_of_points_per_shape=3, max_shape_size=30, number_of_shapes=1000):
-
-        # What percentage of the next generation should new, made from crossover?
-        self.crossover_rate = .7
-
-        # What percentage of drawings should be mutated?
-        self.mutation_rate = .02
-
-        # Of the drawings that are mutated, how many shapes within said drawing should be altered?
-        self.mutation_amount = .1
-
         self.population_size = population_size
-        width, height = seed_image.size
+        self.width, self.height = seed_image.size
+
+        self.number_of_points_per_shape = number_of_points_per_shape
+        self.max_shape_size = max_shape_size
+        self.number_of_shapes = number_of_shapes
 
         self._population = {}
         for _ in range(0, self.population_size):
             chromosome_id = random.getrandbits(128)
-            self._population[chromosome_id] = Chromosome(chromosome_id, width, height, number_of_points_per_shape,
-                                                         max_shape_size, number_of_shapes)
-
+            self._population[chromosome_id] = Chromosome(chromosome_id, self.width, self.height,
+                                                         self.number_of_points_per_shape, self.max_shape_size,
+                                                         self.number_of_shapes)
         self.population_spinner = []
 
     def population(self):
         return list(self._population.values())
 
     def update_spinner(self, list_size=10000):
-
         self.population_spinner = []
 
-        population_fitness = sum([chromosome.fitness for chromosome in self.population()])
+        assert (len(self.population()) > 0)
+        population_fitness = sum([chromosome._fitness for chromosome in self.population()])
 
         for chromosome in self.population():
-            fitness_in_population = chromosome.fitness / population_fitness
+            fitness_in_population = chromosome._fitness / population_fitness
             spots_on_spinner = int(fitness_in_population * list_size)
             self.population_spinner.extend([chromosome.id for _ in range(0, spots_on_spinner)])
 
-    def evolve(self, pct_new_child=.8):
-
+    def evolve(self, pct_child=0.7, pct_old=0.15, pct_new=0.15):
         new_population = []
 
         self.update_spinner()
         for _ in range(0, self.population_size):
-            if random.uniform(0, 1) < pct_new_child:
+            rand = random.uniform(0, pct_child + pct_old + pct_new)
+
+            if rand < pct_child:
                 # make a new child and add it to the population
                 a = self._population[random.choice(self.population_spinner)]
                 b = self._population[random.choice(self.population_spinner)]
                 new_population.append(Chromosome.mate(a, b))
-            else:
+            elif rand < pct_child + pct_old:
                 # pick an old organism to carry on to the next generation
                 new_population.append(self._population[random.choice(self.population_spinner)])
+            else:
+                chromosome_id = random.getrandbits(128)
+                new_population.append(
+                    Chromosome(chromosome_id, self.width, self.height, self.number_of_points_per_shape,
+                               self.max_shape_size, self.number_of_shapes))
 
-        mutations_to_make = self.mutation_rate * self.population_size
+        mutations_to_make = Population.mutation_rate * self.population_size
         chromosomes_to_mutate = [random.choice(self.population()) for _ in range(0, int(mutations_to_make))]
 
         for chromosome in chromosomes_to_mutate:
@@ -71,12 +81,35 @@ class Population:
 
         self.update_spinner()
 
+    def statistic(self):
+        min, avg, max = None, None, None
+        population_fitness = 0
+
+        for chromosome in self.population():
+            min = chromosome._fitness if (min is None or min > chromosome._fitness) else min
+            max = chromosome._fitness if (max is None or max < chromosome._fitness) else max
+            population_fitness += chromosome._fitness
+
+        avg = population_fitness / self.population_size
+        return min, avg, max
+
+    def best_chromosome(self):
+        min_fitness = None
+        best_drawing = None
+
+        for chromosome in self.population():
+            if (min_fitness is None or chromosome._fitness < min_fitness):
+                min_fitness = chromosome._fitness
+                best_drawing = chromosome.drawing
+
+        return best_drawing.get_pic_rep()
+
 
 class Chromosome:
     def __init__(self, id, width, height, number_of_points_per_shape, max_shape_size, number_of_shapes):
         self.drawing = Drawing(width, height, number_of_points_per_shape, max_shape_size, number_of_shapes)
         self.id = id
-        self.fitness = self.fitness() if number_of_shapes > 0 else 0
+        self._fitness = self.fitness() if number_of_shapes > 0 else 0
 
     def mutate(self):
         """Will randomly mutate random genes in random chromosomes within a given population"""
@@ -92,7 +125,7 @@ class Chromosome:
                 mutate_me.replace_random_point()
 
         # Recalculate organism fitness
-        self.fitness = self.fitness()
+        self._fitness = self.fitness()
 
         return self
 
@@ -102,34 +135,35 @@ class Chromosome:
     @classmethod
     def mate(cls, chromosome_one, chromosome_two):
         """Returns a new chromosome which will be the child of the given two chromosome"""
-
-        assert(len(chromosome_one.drawing.shapes) == len(chromosome_two.drawing.shapes))
-        assert(chromosome_one.drawing.width == chromosome_two.drawing.width and chromosome_one.drawing.height == chromosome_two.drawing.height)
-
-        new_chromosome = Chromosome(random.getrandbits(128), chromosome_one.drawing.width, chromosome_one.drawing.height, 0, 0, 0)
+        new_chromosome = Chromosome(random.getrandbits(128), chromosome_one.drawing.width,
+                                    chromosome_one.drawing.height, 0, 0, 0)
 
         for i in range(0, len(chromosome_one.drawing.shapes)):
-
             if random.random() < .5:
                 new_chromosome.drawing.shapes.append(chromosome_one.drawing.shapes[i])
             else:
                 new_chromosome.drawing.shapes.append(chromosome_two.drawing.shapes[i])
 
+        new_chromosome._fitness = new_chromosome.fitness()
         return new_chromosome
 
 
 def main():
     start = time.clock()
-    pop = Population(population_size=10, number_of_points_per_shape=3, max_shape_size=30, number_of_shapes=1000)
+    pop = Population(population_size=100, number_of_points_per_shape=3, max_shape_size=10, number_of_shapes=1000)
     print("Population Created: {}".format((time.clock() - start)))
 
-    start = time.clock()
-    pop.evolve()
-    print("Population Evolved: {}".format((time.clock() - start)))
+    print(pop.statistic())
+    pop.best_chromosome().save("out/before.png", "PNG")
 
-    start = time.clock()
-    pop.evolve()
-    print("Population Evolved: {}".format((time.clock() - start)))
+    for i in range(0, 100):
+        if i % 10 == 0:
+            print(pop.statistic())
+            pop.best_chromosome().save("out/{}.png".format(i / 10), "PNG")
+        pop.evolve()
+
+    print(pop.statistic())
+    pop.best_chromosome().save("out/after.png", "PNG")
 
 
 if __name__ == '__main__':

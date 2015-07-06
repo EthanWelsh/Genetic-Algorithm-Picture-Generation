@@ -76,11 +76,8 @@ class Drawing:
             return tuple(tuple([point.x, point.y]) for point in self.points)
 
         def replace_random_point(self):
-            index = random.randint(0, len(self.points))
+            index = random.randint(0, len(self.points) - 1)
             self.points[index] = self.Point(self.restrictions)
-
-
-
 
         def __str__(self):
             return "Color: {} Points: {}".format(self.color, [str(point) for point in self.points])
@@ -91,8 +88,8 @@ class Drawing:
 
         self.points_per_shape = points_per_shape
         self.max_shape_size = max_shape_size
-        self.shapes = [Drawing.Shape(number_of_points=self.points_per_shape, max_size=self.max_shape_size, boundaries=(0, 0, self.width, self.height)) for _
-                       in range(0, number_of_shapes)]
+        self.shapes = [Drawing.Shape(number_of_points=self.points_per_shape, max_size=self.max_shape_size,
+                                     boundaries=(0, 0, self.width, self.height)) for _ in range(0, number_of_shapes)]
 
     def add_shape(self):
         self.shapes.append(Drawing.Shape(self.points_per_shape, self.max_shape_size, (0, 0, self.width, self.height)))
@@ -110,25 +107,24 @@ class Drawing:
         im.show()
 
     def closeness(self, img2):
-        return sum(ImageStat.Stat(PIL.ImageChops.difference(self.get_pic_rep().convert("RGB"), img2.convert("RGB"))).sum)
+        return sum(
+            ImageStat.Stat(PIL.ImageChops.difference(self.get_pic_rep().convert("RGBA"), img2.convert("RGBA"))).sum)
 
 
 def get_pic_from_url(url):
     response = requests.get(url)
-    return PIL.Image.open(BytesIO(response.content))
+    return PIL.Image.open(BytesIO(response.content)).convert('RGBA')
 
 
 def main():
-
-    img1 = get_pic_from_url('http://www.homedepot.com/catalog/productImages/400/f9/f901c92f-01d7-4bd4-b18e-464b705f92ad_400.jpg')
+    img1 = get_pic_from_url(
+        'http://www.homedepot.com/catalog/productImages/400/f9/f901c92f-01d7-4bd4-b18e-464b705f92ad_400.jpg')
     img2 = get_pic_from_url('https://www.tonydiloreto.com/wp-content/uploads/2015/03/whitesquare.jpg')
 
     print(img1.size)
     print(img2.size)
 
     print(ImageStat.Stat(PIL.ImageChops.difference(img1.convert("RGBA"), img2.convert("RGBA"))).sum)
-
-
 
 
 if __name__ == "__main__":
