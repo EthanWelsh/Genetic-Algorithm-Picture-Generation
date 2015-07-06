@@ -18,13 +18,9 @@ class Drawing:
                 self.a = int(255 * max(random.random() * random.random(), 0.2))
 
             def get_color_tup(self):
-                return tuple([self.r, self.g, self.b, self.a])
+                """Return a tuple representing this color's RGBA values"""
 
-            def distance(self, other_color):
-                return (abs(self.r - other_color.r) +
-                        abs(self.g - other_color.g) +
-                        abs(self.b - other_color.b) +
-                        abs(self.a - other_color.a))
+                return tuple([self.r, self.g, self.b, self.a])
 
             def __str__(self):
                 return "rgba({} {} {} {})".format(self.r, self.g, self.b, self.a)
@@ -73,16 +69,28 @@ class Drawing:
             self.color = self.Color()
 
         def get_point_tup(self):
+            """Returns a tuple of tuples of points in this shape"""
+
             return tuple(tuple([point.x, point.y]) for point in self.points)
 
         def replace_random_point(self):
+            """Selects a random point within a given shape and replaces it with a new point"""
+
             index = random.randint(0, len(self.points) - 1)
             self.points[index] = self.Point(self.restrictions)
 
         def __str__(self):
             return "Color: {} Points: {}".format(self.color, [str(point) for point in self.points])
 
-    def __init__(self, width, height, points_per_shape, max_shape_size, number_of_shapes=0):
+    def __init__(self, width, height, points_per_shape, max_shape_size = None, number_of_shapes=0):
+        """
+        :param width: Drawing width
+        :param height: Drawing height
+        :param points_per_shape: Number of points within each shape
+        :param: max_shape_size: Largest amount of distance that points are allowed to fall from the origin
+        :param: number_of_shapes: Number of shapes within each drawing
+        """
+
         self.width = width
         self.height = height
 
@@ -92,26 +100,37 @@ class Drawing:
                                      boundaries=(0, 0, self.width, self.height)) for _ in range(0, number_of_shapes)]
 
     def add_shape(self):
+        """Add a random shape to the this drawing"""
+
         self.shapes.append(Drawing.Shape(self.points_per_shape, self.max_shape_size, (0, 0, self.width, self.height)))
 
     def get_pic_rep(self):
-        im = PIL.Image.new("RGBA", (self.width, self.height), color=(255, 255, 255))
-        draw = PIL.ImageDraw.Draw(im)
+        """Returns the image representation version of this drawing"""
+
+        img = PIL.Image.new("RGB", (self.width, self.height), color=(255, 255, 255))
+        draw = PIL.ImageDraw.Draw(img, 'RGBA')
 
         for shape in self.shapes:
             draw.polygon(shape.get_point_tup(), fill=shape.color.get_color_tup())
-        return im
+
+        return img
 
     def show_image(self):
+        """Display's this drawing as an image"""
+
         im = self.get_pic_rep()
         im.show()
 
     def closeness(self, img2):
+        """"Measure's the closeness of this image to the seed image"""
+
         return sum(
             ImageStat.Stat(PIL.ImageChops.difference(self.get_pic_rep().convert("RGBA"), img2.convert("RGBA"))).sum)
 
 
 def get_pic_from_url(url):
+    """Requests the picture from the given URL and returns the Pillow representation of this image"""
+
     response = requests.get(url)
     return PIL.Image.open(BytesIO(response.content)).convert('RGBA')
 
