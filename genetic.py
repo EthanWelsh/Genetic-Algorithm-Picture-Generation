@@ -37,8 +37,6 @@ class Population:
 
     def update_spinner(self, list_size=10000):
         self.population_spinner = []
-
-        assert (len(self.population()) > 0)
         population_fitness = sum([chromosome._fitness for chromosome in self.population()])
 
         for chromosome in self.population():
