@@ -109,5 +109,7 @@ crashlytics-build.properties
 #event files
 /events
 /output
+/out
 client_tests/client_db/
 server_db/
+
