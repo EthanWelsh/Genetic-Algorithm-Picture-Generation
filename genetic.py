@@ -2,8 +2,11 @@ import time
 
 from drawing import *
 
-seed_image = get_pic_from_url(
-    'http://www.homedepot.com/catalog/productImages/400/f9/f901c92f-01d7-4bd4-b18e-464b705f92ad_400.jpg')
+#seed_image = get_pic_from_url(
+#    'http://www.homedepot.com/catalog/productImages/400/f9/f901c92f-01d7-4bd4-b18e-464b705f92ad_400.jpg')
+
+seed_image = PIL.Image.open('/Users/welshej/Downloads/lobster.png')
+
 
 
 class Population:
@@ -98,7 +101,7 @@ class Population:
 
         self.update_spinner()
 
-    def statistic(self):
+    def statistics(self):
         """Provides the minimum, average, and max fitness score for this population"""
 
         min, avg, max = None, None, None
@@ -182,21 +185,39 @@ class Chromosome:
 
 
 def main():
+
+    """
+    Grab runs of shapes from now on, making sure to preserve their order. The order in which transparent polygons are
+    drawn is highly important when determining what an image looks like. Images closer to the top have a greater effect
+    on the drawing's image.
+    """
+
     start = time.clock()
-    pop = Population(population_size=100, number_of_points_per_shape=3, max_shape_size=5, number_of_shapes=500)
+    pop = Population(population_size=50, number_of_points_per_shape=3, number_of_shapes=150)
     print("Population Created: {}".format((time.clock() - start)))
 
-    print(pop.statistic())
-    pop.best_chromosome().save("out/before.png", "PNG")
+    start = time.clock()
 
-    for i in range(0, 100):
+    for i in range(0, 200):
+
         if i % 10 == 0:
-            print(pop.statistic())
+            print("Evolution {}: {}".format(i, (time.clock() - start)))
+
+            w, h = seed_image.size
+            worst_score = (255*3)*(w*h)
+            min, avg, max = pop.statistics()
+
+            min_pct = 100 - (((worst_score - min)/worst_score)*100)
+            avg_pct = 100 - (((worst_score - avg)/worst_score)*100)
+            max_pct = 100 - (((worst_score - max)/worst_score)*100)
+
+            print("Min: {0:.2f}%\tAvg: {0:.2f}%\tMax: {0:.2f}%".format(min_pct, avg_pct, max_pct))
+
             pop.best_chromosome().save("out/{}.png".format(i / 10), "PNG")
+            start = time.clock()
         pop.evolve()
 
-    print(pop.statistic())
-    pop.best_chromosome().save("out/after.png", "PNG")
+
 
 
 if __name__ == '__main__':
