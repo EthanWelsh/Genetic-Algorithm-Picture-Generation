@@ -2,11 +2,10 @@ import time
 
 from drawing import *
 
-#seed_image = get_pic_from_url(
+# seed_image = get_pic_from_url(
 #    'http://www.homedepot.com/catalog/productImages/400/f9/f901c92f-01d7-4bd4-b18e-464b705f92ad_400.jpg')
 
 seed_image = PIL.Image.open('/Users/welshej/Downloads/lobster.png')
-
 
 
 class Population:
@@ -52,10 +51,10 @@ class Population:
         chromosomes with better fitness scores"""
 
         self.population_spinner = []
-        population_fitness = sum([chromosome._fitness for chromosome in self.population()])
+        population_fitness = sum([chromosome.fitness() for chromosome in self.population()])
 
         for chromosome in self.population():
-            fitness_in_population = chromosome._fitness / population_fitness
+            fitness_in_population = chromosome.fitness() / population_fitness
             spots_on_spinner = int(fitness_in_population * list_size)
             self.population_spinner.extend([chromosome.id for _ in range(0, spots_on_spinner)])
 
@@ -108,9 +107,9 @@ class Population:
         population_fitness = 0
 
         for chromosome in self.population():
-            min = chromosome._fitness if (min is None or min > chromosome._fitness) else min
-            max = chromosome._fitness if (max is None or max < chromosome._fitness) else max
-            population_fitness += chromosome._fitness
+            min = chromosome.fitness() if (min is None or min > chromosome.fitness()) else min
+            max = chromosome.fitness() if (max is None or max < chromosome.fitness()) else max
+            population_fitness += chromosome.fitness()
 
         avg = population_fitness / self.population_size
         return min, avg, max
@@ -122,8 +121,8 @@ class Population:
         best_drawing = None
 
         for chromosome in self.population():
-            if (min_fitness is None or chromosome._fitness < min_fitness):
-                min_fitness = chromosome._fitness
+            if min_fitness is None or chromosome.fitness() < min_fitness:
+                min_fitness = chromosome.fitness()
                 best_drawing = chromosome.drawing
 
         return best_drawing.get_pic_rep()
@@ -142,7 +141,6 @@ class Chromosome:
 
         self.drawing = Drawing(width, height, number_of_points_per_shape, max_shape_size, number_of_shapes)
         self.id = id
-        self._fitness = self.fitness() if number_of_shapes > 0 else 0
 
     def mutate(self):
         """Will randomly mutate random genes in random chromosomes within a given population"""
@@ -156,9 +154,6 @@ class Chromosome:
                 mutate_me.color = Drawing.Shape.Color()
             else:  # points mutation
                 mutate_me.replace_random_point()
-
-        # Recalculate organism fitness
-        self._fitness = self.fitness()
 
         return self
 
@@ -185,12 +180,14 @@ class Chromosome:
             else:
                 new_chromosome.drawing.shapes.append(b_shapes[i])
 
-        new_chromosome._fitness = new_chromosome.fitness()
         return new_chromosome
 
 
-def main():
+def get_percent(score, worst_score):
+    return 100 - (((worst_score - score) / worst_score) * 100)
 
+
+def main():
     """
     Grab runs of shapes from now on, making sure to preserve their order. The order in which transparent polygons are
     drawn is highly important when determining what an image looks like. Images closer to the top have a greater effect
@@ -203,26 +200,24 @@ def main():
 
     start = time.clock()
 
-    for i in range(0, 200):
+    for i in range(0, 2000):
 
-        if i % 10 == 0:
+        if i % 20 == 0:
             print("Evolution {}: {}".format(i, (time.clock() - start)))
 
             w, h = seed_image.size
-            worst_score = (255*3)*(w*h)
-            min, avg, max = pop.statistics()
+            worst_score = (255 * 3) * (w * h)
+            minimum, average, maximum = pop.statistics()
 
-            min_pct = 100 - (((worst_score - min)/worst_score)*100)
-            avg_pct = 100 - (((worst_score - avg)/worst_score)*100)
-            max_pct = 100 - (((worst_score - max)/worst_score)*100)
+            min_pct = get_percent(minimum, worst_score)
+            avg_pct = get_percent(average, worst_score)
+            max_pct = get_percent(maximum, worst_score)
 
             print("Min: {0:.2f}%\tAvg: {0:.2f}%\tMax: {0:.2f}%".format(min_pct, avg_pct, max_pct))
 
             pop.best_chromosome().save("out/{}.png".format(i / 10), "PNG")
             start = time.clock()
         pop.evolve()
-
-
 
 
 if __name__ == '__main__':
