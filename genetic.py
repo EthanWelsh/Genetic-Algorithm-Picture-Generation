@@ -168,17 +168,22 @@ class Chromosome:
         return self.drawing.closeness(seed_image)
 
     @classmethod
-    def mate(cls, chromosome_one, chromosome_two):
+    def mate(cls, chromosome_a, chromosome_b):
         """Returns a new chromosome which will be the child of the given two chromosome"""
 
-        new_chromosome = Chromosome(random.getrandbits(128), chromosome_one.drawing.width,
-                                    chromosome_one.drawing.height, 0, 0, 0)
+        new_chromosome = Chromosome(random.getrandbits(128), chromosome_a.drawing.width,
+                                    chromosome_a.drawing.height, 0, 0, 0)
 
-        for i in range(0, len(chromosome_one.drawing.shapes)):
-            if random.random() < .5:
-                new_chromosome.drawing.shapes.append(chromosome_one.drawing.shapes[i])
+        a_shapes = chromosome_a.drawing.shapes
+        b_shapes = chromosome_b.drawing.shapes
+
+        cross_over_point = random.randint(0, len(a_shapes))
+
+        for i in range(0, len(a_shapes)):
+            if i < cross_over_point:
+                new_chromosome.drawing.shapes.append(a_shapes[i])
             else:
-                new_chromosome.drawing.shapes.append(chromosome_two.drawing.shapes[i])
+                new_chromosome.drawing.shapes.append(b_shapes[i])
 
         new_chromosome._fitness = new_chromosome.fitness()
         return new_chromosome
