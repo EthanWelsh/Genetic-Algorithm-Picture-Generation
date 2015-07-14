@@ -10,13 +10,13 @@ seed_image = PIL.Image.open('/Users/welshej/Downloads/lobster.png')
 
 class Population:
     # What percentage of the next generation should new, made from crossover?
-    crossover_rate = .7
+    crossover_rate = .5
 
     # What percentage of drawings should be mutated?
     mutation_rate = .02
 
     # Of the drawings that are mutated, how many shapes within said drawing should be altered?
-    mutation_amount = .1
+    mutation_amount = .2
 
     def __init__(self, population_size, number_of_points_per_shape=3, max_shape_size=30, number_of_shapes=1000):
         """
@@ -103,16 +103,22 @@ class Population:
     def statistics(self):
         """Provides the minimum, average, and max fitness score for this population"""
 
-        min, avg, max = None, None, None
+        pop_min, pop_avg, pop_max = None, None, None
         population_fitness = 0
 
         for chromosome in self.population():
-            min = chromosome.fitness() if (min is None or min > chromosome.fitness()) else min
-            max = chromosome.fitness() if (max is None or max < chromosome.fitness()) else max
-            population_fitness += chromosome.fitness()
 
-        avg = population_fitness / self.population_size
-        return min, avg, max
+            chromosome_fitness = chromosome.fitness()
+
+
+            pop_min = chromosome_fitness if (pop_min is None or chromosome.fitness() < pop_min) else pop_min
+            pop_max = chromosome_fitness if (pop_max is None or chromosome.fitness() > pop_max) else pop_max
+            population_fitness += chromosome_fitness
+
+        pop_avg = population_fitness / self.population_size
+
+        print("{} {} {}".format(pop_min, pop_avg, pop_max))
+        return pop_min, pop_avg, pop_max
 
     def best_chromosome(self):
         """Finds the drawing that is most representative of the seed image and returns that drawing as an image"""
@@ -213,7 +219,7 @@ def main():
             avg_pct = get_percent(average, worst_score)
             max_pct = get_percent(maximum, worst_score)
 
-            print("Min: {0:.2f}%\tAvg: {0:.2f}%\tMax: {0:.2f}%".format(min_pct, avg_pct, max_pct))
+            print("Min: {0:.2f}%\tAvg: {1:.2f}%\tMax: {2:.2f}%".format(min_pct, avg_pct, max_pct))
 
             pop.best_chromosome().save("out/{}.png".format(i / 10), "PNG")
             start = time.clock()
