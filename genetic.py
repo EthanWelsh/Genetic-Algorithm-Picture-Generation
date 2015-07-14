@@ -110,14 +110,11 @@ class Population:
 
             chromosome_fitness = chromosome.fitness()
 
-
             pop_min = chromosome_fitness if (pop_min is None or chromosome.fitness() < pop_min) else pop_min
             pop_max = chromosome_fitness if (pop_max is None or chromosome.fitness() > pop_max) else pop_max
             population_fitness += chromosome_fitness
 
         pop_avg = population_fitness / self.population_size
-
-        print("{} {} {}".format(pop_min, pop_avg, pop_max))
         return pop_min, pop_avg, pop_max
 
     def best_chromosome(self):
