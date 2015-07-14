@@ -1,5 +1,5 @@
 import time
-
+import matplotlib.pyplot as plt
 from drawing import *
 
 # seed_image = get_pic_from_url(
@@ -197,15 +197,20 @@ def main():
     on the drawing's image.
     """
 
+    plt.ylabel('Population Fitness')
+    plt.gca().set_color_cycle(['red', 'green', 'blue'])
+    plt.legend(['min', 'avg', 'max'], loc='upper left')
+
     start = time.clock()
     pop = Population(population_size=50, number_of_points_per_shape=3, number_of_shapes=150)
     print("Population Created: {}".format((time.clock() - start)))
 
     start = time.clock()
 
-    for i in range(0, 2000):
+    mins, avgs, maxs = [], [], []
 
-        if i % 20 == 0:
+    for i in range(0, 500):
+        if i % 10 == 0:
             print("Evolution {}: {}".format(i, (time.clock() - start)))
 
             w, h = seed_image.size
@@ -216,11 +221,20 @@ def main():
             avg_pct = get_percent(average, worst_score)
             max_pct = get_percent(maximum, worst_score)
 
-            print("Min: {0:.2f}%\tAvg: {1:.2f}%\tMax: {2:.2f}%".format(min_pct, avg_pct, max_pct))
+            mins.append(min_pct)
+            avgs.append(avg_pct)
+            maxs.append(max_pct)
 
+            print("Min: {0:.2f}%\tAvg: {1:.2f}%\tMax: {2:.2f}%".format(min_pct, avg_pct, max_pct))
             pop.best_chromosome().save("out/{}.png".format(i / 10), "PNG")
             start = time.clock()
         pop.evolve()
+
+    plt.plot(mins, label="Min")
+    plt.plot(avgs, label="Avg")
+    plt.plot(maxs, label="Max")
+
+    plt.show()
 
 
 if __name__ == '__main__':
